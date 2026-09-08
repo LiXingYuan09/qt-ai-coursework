@@ -24,7 +24,8 @@ QVector<float> embedText(const QString &text) {
     QVector<float> vector(256, 0.0f);
     const QString normalized = text.toLower().simplified();
     for (int i = 0; i < normalized.size(); ++i) {
-        const QString token = normalized.mid(i, qMin(2, normalized.size() - i));
+        const int length = (i + 1 < normalized.size()) ? 2 : 1;
+        const QString token = normalized.mid(i, length);
         vector[static_cast<int>(qHash(token) % vector.size())] += 1.0f;
     }
     float norm = 0.0f;
@@ -36,7 +37,7 @@ QVector<float> embedText(const QString &text) {
 
 float cosineSimilarity(const QVector<float> &a, const QVector<float> &b) {
     float score = 0.0f;
-    for (int i = 0; i < qMin(a.size(), b.size()); ++i) score += a[i] * b[i];
+    for (qsizetype i = 0; i < std::min(a.size(), b.size()); ++i) score += a[i] * b[i];
     return score;
 }
 
@@ -60,11 +61,12 @@ public:
             return a.score > b.score;
         });
         QVector<Chunk> answer;
-        for (int i = 0; i < qMin(topK, results.size()); ++i) answer.append(results[i].chunk);
+        for (int i = 0; i < std::min(topK, static_cast<int>(results.size())); ++i)
+            answer.append(results[i].chunk);
         return answer;
     }
 
-    int size() const { return chunks.size(); }
+    int size() const { return static_cast<int>(chunks.size()); }
 
 private:
     QVector<Chunk> chunks;
@@ -75,7 +77,6 @@ int main(int argc, char *argv[]) {
     QWidget window;
     window.setWindowTitle("多模态 RAG 知识库");
     window.resize(760, 560);
-
     auto *layout = new QVBoxLayout(&window);
     auto *title = new QLabel("本地知识库检索演示");
     title->setStyleSheet("font-size: 22px; font-weight: bold;");
@@ -85,7 +86,6 @@ int main(int argc, char *argv[]) {
     queryEdit->setPlaceholderText("输入问题或关键词");
     auto *searchButton = new QPushButton("检索知识库");
     auto *resultView = new QTextBrowser;
-
     layout->addWidget(title);
     layout->addWidget(status);
     layout->addWidget(importButton);
@@ -122,7 +122,6 @@ int main(int argc, char *argv[]) {
     };
     QObject::connect(searchButton, &QPushButton::clicked, runSearch);
     QObject::connect(queryEdit, &QLineEdit::returnPressed, runSearch);
-
     window.show();
     return app.exec();
 }
