@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.21)
+project(AiChat LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
+qt_add_executable(AiChat main.cpp)
+target_link_libraries(AiChat PRIVATE Qt6::Widgets Qt6::Network)
