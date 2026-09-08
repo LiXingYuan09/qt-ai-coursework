@@ -1,0 +1,8 @@
+build/
+cmake-build-*/
+*.user
+*.db
+*.sqlite
+*.onnx
+.env
+captures/
